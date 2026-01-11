@@ -5,7 +5,15 @@ Semantic test matchers powered by LLMs. Test your AI outputs with fuzzy matching
 ## Installation
 
 ```bash
-npm install vibe-match
+npm install -D vibe-match
+```
+
+```bash
+bun add -D vibe-match
+```
+
+```bash
+yarn add -D vibe-match
 ```
 
 ## Quick Start
