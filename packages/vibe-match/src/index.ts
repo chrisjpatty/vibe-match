@@ -8,6 +8,9 @@ export type {
 } from "./types";
 export type { LanguageModelString, EmbeddingModelString } from "./providers";
 
+// Re-export AI SDK types for inline model overrides
+export type { LanguageModelV1, EmbeddingModel } from "ai";
+
 // Export matcher option types
 export type { ToBeSimilarToOptions } from "./matchers/toBeSimilarTo";
 export type { ToMentionOptions } from "./matchers/toMention";

@@ -19,7 +19,6 @@ yarn add -D vibe-match
 ## Quick Start
 
 ```typescript
-import { expect } from "@jest/globals";
 import { vibeMatchers, type VibeMatchConfig } from "vibe-match";
 
 const config: VibeMatchConfig = {
@@ -214,6 +213,73 @@ Tests semantic similarity using embedding vectors and cosine similarity.
 ```typescript
 expect("A guide to baking bread").toBeVectorSimilarTo("Bread baking tutorial", {
   threshold: 0.85, // Minimum cosine similarity (0-1)
+});
+```
+
+## Inline Model Overrides
+
+You can override the language model or embedding model for individual matcher calls. This is useful when you want to use a different model for specific tests without changing your global configuration.
+
+```typescript
+import {
+  vibeMatchers,
+  type LanguageModelV1,
+  type EmbeddingModel,
+} from "vibe-match";
+import { createOpenAI } from "@ai-sdk/openai";
+
+// Configure with default models
+const config: VibeMatchConfig = {
+  apiKeys: { openai: process.env.OPENAI_API_KEY },
+  languageModel: "openai:gpt-4o-mini",
+  embeddingModel: "openai:text-embedding-3-small",
+};
+
+expect.extend(vibeMatchers(config));
+
+// Create a more powerful model for specific tests
+const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const gpt4o = openai("gpt-4o");
+
+// Use inline override for this specific assertion
+expect(response).toBeSimilarTo(expected, {
+  languageModel: gpt4o, // Use GPT-4o for this test only
+});
+```
+
+### Language Model Overrides
+
+The following matchers support the `languageModel` option:
+
+- `toBeSimilarTo` — for semantic similarity checks
+- `toMention` — for concept mention detection
+- `toSatisfyCriteria` — for criteria evaluation
+
+```typescript
+// Use a stronger model for critical tests
+expect(aiResponse).toSatisfyCriteria(
+  ["Is factually accurate", "Cites sources"],
+  {
+    languageModel: gpt4o,
+    mode: "all",
+  },
+);
+
+expect(summary).toMention("quarterly revenue", {
+  languageModel: gpt4o,
+});
+```
+
+### Embedding Model Overrides
+
+The `toBeVectorSimilarTo` matcher supports the `embeddingModel` option:
+
+```typescript
+const largeEmbedding = openai.embedding("text-embedding-3-large");
+
+expect(document).toBeVectorSimilarTo(reference, {
+  embeddingModel: largeEmbedding, // Use larger embedding model
+  threshold: 0.9,
 });
 ```
 

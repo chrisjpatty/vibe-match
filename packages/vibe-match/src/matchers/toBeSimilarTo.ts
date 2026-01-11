@@ -2,6 +2,9 @@ import { generateObject, type LanguageModelV1 } from "ai";
 import { z } from "zod";
 import type { VibeMatcher } from "../types";
 
+/** Re-export for inline model overrides */
+export type { LanguageModelV1 };
+
 const SimilarityResponse = z.object({
   pass: z.boolean(),
   explanation: z.string(),
@@ -90,6 +93,11 @@ export interface ToBeSimilarToOptions {
    * and any global prompt set in vibeMatchers config.
    */
   systemPrompt?: string;
+  /**
+   * Override the language model for this specific matcher call.
+   * If not provided, uses the model from vibeMatchers config.
+   */
+  languageModel?: LanguageModelV1;
 }
 
 export const toBeSimilarTo: VibeMatcher<
@@ -101,6 +109,7 @@ export const toBeSimilarTo: VibeMatcher<
       level = "normal",
       threshold = 0.75,
       systemPrompt,
+      languageModel,
     } = options;
 
     // Layered prompt resolution: per-call > global config > default
@@ -109,6 +118,9 @@ export const toBeSimilarTo: VibeMatcher<
       config.prompts?.toBeSimilarTo ??
       DEFAULT_SIMILARITY_PROMPT;
 
+    // Use inline model override if provided, otherwise fall back to config
+    const resolvedModel = languageModel ?? config.languageModel;
+
     if (typeof actual !== "string" || typeof similarTo !== "string") {
       throw new Error("You must compare against a string");
     }
@@ -116,7 +128,7 @@ export const toBeSimilarTo: VibeMatcher<
     const results = await Promise.all(
       Array.from({ length: samples }).map(async () => {
         return await checkSimilarity(
-          config.languageModel,
+          resolvedModel,
           actual,
           similarTo,
           level,

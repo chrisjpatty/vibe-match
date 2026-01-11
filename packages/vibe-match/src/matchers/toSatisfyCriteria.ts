@@ -2,6 +2,9 @@ import { generateObject, type LanguageModelV1 } from "ai";
 import { z } from "zod";
 import type { VibeMatcher } from "../types";
 
+/** Re-export for inline model overrides */
+export type { LanguageModelV1 };
+
 const CriterionResponse = z.object({
   pass: z.boolean(),
   explanation: z.string(),
@@ -92,6 +95,12 @@ export interface ToSatisfyCriteriaOptions {
    * and any global prompt set in vibeMatchers config.
    */
   systemPrompt?: string;
+
+  /**
+   * Override the language model for this specific matcher call.
+   * If not provided, uses the model from vibeMatchers config.
+   */
+  languageModel?: LanguageModelV1;
 }
 
 export const toSatisfyCriteria: VibeMatcher<
@@ -103,6 +112,7 @@ export const toSatisfyCriteria: VibeMatcher<
       threshold = 0.75,
       samples = 3,
       systemPrompt,
+      languageModel,
     } = options;
 
     // Layered prompt resolution: per-call > global config > default
@@ -110,6 +120,9 @@ export const toSatisfyCriteria: VibeMatcher<
       systemPrompt ??
       config.prompts?.toSatisfyCriteria ??
       DEFAULT_SATISFY_CRITERIA_PROMPT;
+
+    // Use inline model override if provided, otherwise fall back to config
+    const resolvedModel = languageModel ?? config.languageModel;
 
     if (typeof actual !== "string") {
       throw new Error("The value being tested must be a string");
@@ -138,12 +151,7 @@ export const toSatisfyCriteria: VibeMatcher<
         // Run multiple samples for each criterion
         const sampleResults = await Promise.all(
           Array.from({ length: samples }).map(() =>
-            checkCriterion(
-              config.languageModel,
-              actual,
-              criterion,
-              resolvedPrompt,
-            ),
+            checkCriterion(resolvedModel, actual, criterion, resolvedPrompt),
           ),
         );
 

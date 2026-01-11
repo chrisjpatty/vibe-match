@@ -1,5 +1,8 @@
-import { embedMany, cosineSimilarity } from "ai";
+import { embedMany, cosineSimilarity, type EmbeddingModel } from "ai";
 import type { VibeMatcher } from "../types";
+
+/** Re-export for inline model overrides */
+export type { EmbeddingModel };
 
 export interface VectorSimilarityOptions {
   /**
@@ -7,13 +10,21 @@ export interface VectorSimilarityOptions {
    * @default 0.85
    */
   threshold?: number;
+  /**
+   * Override the embedding model for this specific matcher call.
+   * If not provided, uses the model from vibeMatchers config.
+   */
+  embeddingModel?: EmbeddingModel<string>;
 }
 
 export const toBeVectorSimilarTo: VibeMatcher<
   [expected: unknown, options?: VectorSimilarityOptions]
 > = (config) =>
   async function (actual, expected, options: VectorSimilarityOptions = {}) {
-    const { threshold = 0.85 } = options;
+    const { threshold = 0.85, embeddingModel } = options;
+
+    // Use inline model override if provided, otherwise fall back to config
+    const resolvedModel = embeddingModel ?? config.embeddingModel;
 
     if (typeof actual !== "string" || typeof expected !== "string") {
       throw new Error("Both actual and expected must be strings");
@@ -21,7 +32,7 @@ export const toBeVectorSimilarTo: VibeMatcher<
 
     // Fetch both embeddings in a single batch for efficiency
     const { embeddings } = await embedMany({
-      model: config.embeddingModel,
+      model: resolvedModel,
       values: [actual, expected],
     });
 

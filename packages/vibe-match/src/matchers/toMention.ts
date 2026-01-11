@@ -2,6 +2,9 @@ import { generateObject, type LanguageModelV1 } from "ai";
 import { z } from "zod";
 import type { VibeMatcher } from "../types";
 
+/** Re-export for inline model overrides */
+export type { LanguageModelV1 };
+
 const MentionResponse = z.object({
   pass: z.boolean(),
   explanation: z.string(),
@@ -67,17 +70,30 @@ export interface ToMentionOptions {
    * and any global prompt set in vibeMatchers config.
    */
   systemPrompt?: string;
+  /**
+   * Override the language model for this specific matcher call.
+   * If not provided, uses the model from vibeMatchers config.
+   */
+  languageModel?: LanguageModelV1;
 }
 
 export const toMention: VibeMatcher<
   [concept: unknown, options?: ToMentionOptions]
 > = (config) =>
   async function (actual, concept, options: ToMentionOptions = {}) {
-    const { samples = 5, threshold = 0.75, systemPrompt } = options;
+    const {
+      samples = 5,
+      threshold = 0.75,
+      systemPrompt,
+      languageModel,
+    } = options;
 
     // Layered prompt resolution: per-call > global config > default
     const resolvedPrompt =
       systemPrompt ?? config.prompts?.toMention ?? DEFAULT_MENTION_PROMPT;
+
+    // Use inline model override if provided, otherwise fall back to config
+    const resolvedModel = languageModel ?? config.languageModel;
 
     if (typeof actual !== "string" || typeof concept !== "string") {
       throw new Error("You must compare against a string");
@@ -86,7 +102,7 @@ export const toMention: VibeMatcher<
     const results = await Promise.all(
       Array.from({ length: samples }).map(async () => {
         return await checkMention(
-          config.languageModel,
+          resolvedModel,
           actual,
           concept,
           resolvedPrompt,
