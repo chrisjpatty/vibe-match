@@ -87,15 +87,11 @@ jobs:
         if: ${{ inputs.dry_run == false }}
         working-directory: packages/vibe-match
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to npm (dry run)
         if: ${{ inputs.dry_run == true }}
         working-directory: packages/vibe-match
         run: npm publish --dry-run --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Commit version bump
         if: ${{ inputs.dry_run == false }}
