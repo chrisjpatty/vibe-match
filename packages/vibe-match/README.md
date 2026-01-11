@@ -2,7 +2,7 @@
 
 **Deterministic tests for non-deterministic AI outputs.**
 
-Testing AI agents, LLM responses, and generated content is hard—outputs vary every time. vibe-match solves this by using LLMs and embeddings to evaluate _meaning_, not exact text. Write assertions that ask "does this response mention the right topic?" or "is this answer semantically equivalent?" and get consistent, reliable test results.
+Testing AI agents, LLM responses, and generated content is very difficult. Traditional testing frameworks focus on providing exact procedural value matching. vibe-match solves this by using LLMs and embeddings to evaluate _meaning_, not exact text. You can write assertions that ask "is this answer semantically equivalent?" or "Does this response conform to a set of criteria?" and get reliable test results.
 
 ```typescript
 // Instead of brittle exact matching...
@@ -29,6 +29,7 @@ await expect(response).toBeSimilarTo("Paris is France's capital"); // ✅ Works!
 - [Test Setup](#test-setup)
 - [API Reference](#api-reference)
 - [Reliability & Sampling](#reliability--sampling)
+- [FAQ](#faq)
 
 ---
 
@@ -705,6 +706,24 @@ await expect(response).toSatisfyCriteria(
   },
 );
 // Total LLM calls: 3 criteria × 5 samples = 15
+```
+
+---
+
+## FAQ
+
+**"How can you use LLMs to test an LLM?**
+Good question, Obviously, this is not a perfect solution, however, vibe-match does several things to force the LLMs to behave more deterministically. For example, by default each test is evaluated by the model several times. And then the results are sampled to get an overall picture of what the model believes the response to a test is. Rather than relying on singular model responses.
+
+**"How can I write effective tests with vibe-match?**
+LLMs perform best at evaluating content when given very narrow criteria to look for. The more specific you can be, the more likely your tests are to return consistent results. The `toSatisfyCriteria` matcher is particularly useful for this, as it allows you to specify a list of specific criteria that the response must satisfy. For example:
+
+```typescript
+await expect(response).toSatisfyCriteria([
+  "Addresses the user by name",
+  "Includes <name of business> in the response at least once",
+  "Includes 2 call to actions",
+]);
 ```
 
 ---
