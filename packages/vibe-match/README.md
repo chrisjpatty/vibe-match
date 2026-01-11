@@ -714,7 +714,7 @@ await expect(response).toSatisfyCriteria(
 
 #### How can you use LLMs to test an LLM?
 
-Good question, Obviously, this is not a perfect solution, however, vibe-match does several things to force the LLMs to behave more deterministically. For example, by default each test is evaluated by the model several times. And then the results are sampled to get an overall picture of what the model believes the response to a test is. Rather than relying on singular model responses.
+Good question, Obviously, this is not a perfect solution, however vibe-match does several things to force the LLMs to behave more deterministically. For example, by default each test is evaluated by the model several times and the results are sampled to get a wider view of how the model evaluates the test, rather than relying on singular model responses. You can override this behavior and increase the number of samples for even more consistency, the trade off being more LLM calls and higher costs. See the [Reliability & Sampling](#reliability--sampling) section for more details.
 
 #### How can I write effective tests with vibe-match?
 
@@ -727,6 +727,8 @@ await expect(response).toSatisfyCriteria([
   "Includes 2 call to actions",
 ]);
 ```
+
+See the [Matchers](#matchers) section for more details.
 
 ---
 
