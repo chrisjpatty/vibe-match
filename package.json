@@ -1,0 +1,15 @@
+{
+  "name": "vibe-match",
+  "module": "packages/vibe-match-jest/src/index.ts",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "playground"
+  ],
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
