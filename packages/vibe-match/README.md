@@ -145,7 +145,7 @@ Tests if two strings are semantically similar. Uses an LLM to evaluate whether t
 
 ```typescript
 await expect("I love cheese pizza").toBeSimilarTo(
-  "Cheese pizza is my favorite",
+  "Cheese pizza is my favorite"
 );
 ```
 
@@ -185,7 +185,7 @@ Tests if text mentions a concept—directly, by description, or by implication.
 
 ```typescript
 await expect("The red and yellow clown mascot smiled at customers").toMention(
-  "McDonald's",
+  "McDonald's"
 );
 // ✅ Passes — describes Ronald McDonald
 ```
@@ -254,7 +254,7 @@ await expect(email).toSatisfyCriteria(
     "Includes a call to action",
     "Contains contact information",
   ],
-  { mode: "all" },
+  { mode: "all" }
 );
 
 // At least 80% of criteria must pass
@@ -265,7 +265,7 @@ await expect(report).toSatisfyCriteria(
     "Cites sources",
     "Has recommendations section",
   ],
-  { mode: "threshold", threshold: 0.8 },
+  { mode: "threshold", threshold: 0.8 }
 );
 ```
 
@@ -277,7 +277,7 @@ Tests semantic similarity using embedding vectors and cosine similarity. Faster 
 
 ```typescript
 await expect("A guide to baking bread").toBeVectorSimilarTo(
-  "Bread baking tutorial",
+  "Bread baking tutorial"
 );
 ```
 
@@ -424,7 +424,7 @@ const together = createOpenAI({
 const config: VibeMatchConfig = {
   languageModel: together("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
   embeddingModel: together.embedding(
-    "togethercomputer/m2-bert-80M-8k-retrieval",
+    "togethercomputer/m2-bert-80M-8k-retrieval"
   ),
 };
 ```
@@ -461,7 +461,7 @@ const gpt4o = openai("gpt-4o"); // More powerful model
 // Use GPT-4o for this critical test only
 await expect(response).toSatisfyCriteria(
   ["Is factually accurate", "Cites sources"],
-  { languageModel: gpt4o },
+  { languageModel: gpt4o }
 );
 
 // Use a larger embedding model for higher precision
@@ -562,19 +562,19 @@ import { vibeMatchers } from "vibe-match";
 interface VibeMatchers<R = unknown> {
   toBeSimilarTo(
     expected: string,
-    options?: import("vibe-match").ToBeSimilarToOptions,
+    options?: import("vibe-match").ToBeSimilarToOptions
   ): Promise<R>;
   toMention(
     concept: string,
-    options?: import("vibe-match").ToMentionOptions,
+    options?: import("vibe-match").ToMentionOptions
   ): Promise<R>;
   toSatisfyCriteria(
     criteria: string | string[],
-    options?: import("vibe-match").ToSatisfyCriteriaOptions,
+    options?: import("vibe-match").ToSatisfyCriteriaOptions
   ): Promise<R>;
   toBeVectorSimilarTo(
     expected: string,
-    options?: import("vibe-match").VectorSimilarityOptions,
+    options?: import("vibe-match").VectorSimilarityOptions
   ): Promise<R>;
 }
 
@@ -703,7 +703,7 @@ await expect(response).toSatisfyCriteria(
   {
     samples: 5, // 5 evaluations per criterion
     mode: "all", // All criteria must pass
-  },
+  }
 );
 // Total LLM calls: 3 criteria × 5 samples = 15
 ```
@@ -712,10 +712,12 @@ await expect(response).toSatisfyCriteria(
 
 ## FAQ
 
-**"How can you use LLMs to test an LLM?**
+#### How can you use LLMs to test an LLM?
+
 Good question, Obviously, this is not a perfect solution, however, vibe-match does several things to force the LLMs to behave more deterministically. For example, by default each test is evaluated by the model several times. And then the results are sampled to get an overall picture of what the model believes the response to a test is. Rather than relying on singular model responses.
 
-**"How can I write effective tests with vibe-match?**
+#### How can I write effective tests with vibe-match?
+
 LLMs perform best at evaluating content when given very narrow criteria to look for. The more specific you can be, the more likely your tests are to return consistent results. The `toSatisfyCriteria` matcher is particularly useful for this, as it allows you to specify a list of specific criteria that the response must satisfy. For example:
 
 ```typescript
